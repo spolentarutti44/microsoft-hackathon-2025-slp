@@ -1,135 +1,111 @@
-# Nonprofit Grant Writer
+# Nonprofit Grant Application Builder
 
-A multi-agent system optimized to write grant applications for non-profit organizations based out of America.
+Nonprofit Grant Application Builder is a multi-agent AI system that helps nonprofit organizations create high-quality grant applications. 
 
-## Overview
+Users input their organization details and a grant URL, and the application uses Microsoft Semantic Kernel agents with Azure OpenAI to draft the content.
 
-This application uses multiple AI agents to help nonprofit organizations create high-quality grant applications. It features:
+## Architecture
 
-- A user-friendly web interface for inputting organization and grant information
-- Multiple specialized AI agents working together to research, write, and review grant content
-- Integration with Azure OpenAI and Semantic Kernel for powerful AI capabilities
-- Rich editing capabilities for reviewing and customizing the generated content
-- Export to DOCX for final submission
+This project consists of two main components:
+
+1. **Backend API (Quart)**  
+   - Provides JSON endpoints for generating and retrieving grant content.  
+   - Uses Semantic Kernel orchestrator agent to coordinate specialized agents (Scraper, Researcher, Writer, QualityChecker, etc.).  
+   - Stores intermediate results in `data/temp_result.json`.
+
+2. **Web UI (Django)**  
+   - Offers a user-friendly interface for input and review.  
+   - Static assets and templates are packaged in the `ui` Django app.  
+   - Runs as a Django project in the `webui` directory.
+
+## Features
+
+- Input nonprofit name, mission, website, and grant URL.  
+- Background processing of grant generation.  
+- Rich text review with Quill.js editors for each section (Overview, Executive Summary, etc.).  
+- Budget table editing with dynamic item addition/removal.  
+- Export final application as a DOCX document.
 
 ## Tech Stack
 
-- **Backend**: Python with Flask
-- **AI Framework**: Microsoft Semantic Kernel
-- **Orchestration**: MagenticOne (part of Semantic Kernel)
-- **AI Services**: Azure OpenAI
-- **Vector Database**: Qdrant (optional)
-- **Frontend**: HTML/CSS/JavaScript with Bootstrap and Quill.js
+- Python 3.9+  
+- Quart & quart-cors  
+- Django 4.2  
+- Microsoft Semantic Kernel  
+- Azure OpenAI  
+- Qdrant (vector DB)  
+- Bootstrap 5 & Quill.js  
 
-## Agent System
+## Getting Started
 
-The application utilizes several specialized agents:
+### Prerequisites
 
-- **OrchestratorAgent**: Coordinates all other agents
-- **ResearcherAgent**: Finds information about grants and nonprofits
-- **WriterAgent**: Creates compelling grant content
-- **NonProfitGroundingAgent**: Ensures content aligns with the nonprofit's mission
-- **QualityCheckingAgent**: Evaluates and improves grant quality
-- **ScraperAgent**: Extracts information from websites
-- **WebSurferAgent**: Browses the web to find relevant information
-- **FileSurferAgent**: Processes and analyzes files
+- Python 3.9 or higher  
+- pip & virtualenv  
 
-## Installation
+### Installation
 
-1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd nonprofit_grant_writer
-```
-
-2. Create a virtual environment:
-```bash
+cd nonprofit_grant_writer_dj
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
+source venv/bin/activate      # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Copy the `.env.example` file to `.env` and fill in your API keys:
-```bash
-cp .env.example .env
+### Configuration
+
+Create a `.env` file in the project root (next to `app.py`) and set the following variables:
+
+```env
+AZURE_OPENAI_ENDPOINT=<your-azure-openai-endpoint>
+AZURE_OPENAI_KEY=<your-azure-openai-key>
+FLASK_SECRET_KEY=<your-secret-key>
+FLASK_DEBUG=true
+# Add any other keys (Bing API, Qdrant, etc.)
 ```
 
-## Configuration
+### Running
 
-You'll need to configure the following services:
+1. **Start the Backend API**  
+   ```bash
+   python app.py
+   ```  
+   The API listens on `http://127.0.0.1:5000`.
 
-1. **Azure OpenAI**: Obtain API keys and endpoints from the Azure Portal
-2. **Bing Search API**: Get API keys from Microsoft Azure (for research capabilities)
-3. **Qdrant** (optional): Set up a Qdrant instance for vector storage
+2. **Start the Web UI**  
+   ```bash
+   cd webui
+   python manage.py runserver 8000
+   ```  
+   The UI is available at `http://127.0.0.1:8000`.
 
-Fill in these credentials in your `.env` file.
+3. **Use the Application**  
+   - Open `http://127.0.0.1:8000` in your browser.  
+   - Fill in your nonprofit details and grant URL on the home page.  
+   - Click **Generate Grant Application** and wait for processing.  
+   - After redirect, review and edit each section.  
+   - Click **Save as DOCX** to download your finalized application.
 
-## Running the Application
-
-1. Start the Flask application:
-```bash
-python app.py
-```
-
-2. Open your browser and navigate to:
-```
-http://localhost:5000
-```
-
-3. Fill in the form with your nonprofit's information and the grant URL
-4. Wait for the agents to generate your grant application
-5. Review and edit the content on the review page
-6. Download the final document as a DOCX file
-
-## API Endpoints
-
-- `POST /api/generate-grant`: Initiates the grant generation process
-- `GET /api/get-grant-status`: Checks the status of the generation process
-- `POST /api/save-grant`: Saves the edited grant as a DOCX file
-
-## Directory Structure
+## Project Structure
 
 ```
-nonprofit_grant_writer/
-├── app.py                         # Main application entry point
-├── requirements.txt               # Python dependencies
-├── .env.example                   # Environment variables template
-├── backend/                       # Backend code
-│   ├── agents/                    # Agent implementations
-│   │   ├── orchestrator.py        # Main orchestrator agent
-│   │   ├── researcher.py          # Research agent
-│   │   ├── writer.py              # Content writing agent
-│   │   ├── nonprofit_grounding.py # Mission alignment agent
-│   │   ├── quality_checker.py     # Quality evaluation agent
-│   │   ├── scraper.py             # Website scraping agent
-│   │   ├── web_surfer.py          # Web browsing agent
-│   │   └── file_surfer.py         # File processing agent
-│   ├── tools/                     # Tools used by agents
-│   │   └── qdrant_tool.py         # Vector database tool
-│   ├── models/                    # Data models
-│   └── utils/                     # Utility functions
-│       └── docx_generator.py      # DOCX file generation
-├── frontend/                      # Frontend code
-│   ├── static/                    # Static assets
-│   │   ├── css/                   # CSS styles
-│   │   │   └── styles.css         # Main stylesheet
-│   │   └── js/                    # JavaScript files
-│   │       ├── main.js            # Main page script
-│   │       └── review.js          # Review page script
-│   └── templates/                 # HTML templates
-│       ├── index.html             # Main form page
-│       └── review.html            # Content review page
-└── data/                          # Data storage
+nonprofit_grant_writer_dj/
+├── app.py                 # Quart backend entrypoint
+├── requirements.txt       # Python dependencies
+├── .env                   # Environment variables (not committed)
+├── ui/                    # Django app for UI (templates & static)
+├── webui/                 # Django project for UI server
+│   ├── webui/             # Django settings & wsgi
+│   └── manage.py          # Django management script
+├── backend/               # AI agent implementations
+└── data/                  # Temporary result storage
 ```
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details. 
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details. 

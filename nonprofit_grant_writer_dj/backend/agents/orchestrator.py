@@ -48,7 +48,7 @@ class OrchestratorAgent:
         # Initialize search connectors as tools
         duck_plugin = WebSearchEnginePlugin(DuckDuckGoConnector())
         bing_key = os.getenv("BING_SEARCH_API_KEY")
-        if bing_key:
+        if bing_key=="1234":
             bing_plugin = WebSearchEnginePlugin(BingSearchConnector(bing_key))
             self.search_plugins = [duck_plugin, bing_plugin]
         else:

@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
     async function checkStatus() {
         console.log('Checking grant status...');
         try {
-            const response = await fetch('/api/get-grant-status');
+            const response = await fetch('http://127.0.0.1:5000/api/get-grant-status');
             const data = await response.json();
             console.log('Status response:', data);
             if (data.status === 'completed') {
@@ -213,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         
         // Call the API to generate the DOCX
-        fetch('/api/save-grant', {
+        fetch('http://127.0.0.1:5000/api/save-grant', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

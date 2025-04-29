@@ -12,3 +12,5 @@ openai>=1.0.0
 pydantic>=2.0.0,<3.0.0
 hypercorn>=0.14.0
 httpx>=0.24.0
+django>=4.2
+quart-cors>=0.2.0 

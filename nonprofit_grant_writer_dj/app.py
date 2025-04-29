@@ -1,10 +1,11 @@
 import os
-from quart import Quart, render_template, request, jsonify, send_file
+from quart import Quart, render_template, request, jsonify, send_file, Response
 from dotenv import load_dotenv
 from pathlib import Path
 import json
 from io import BytesIO
 import asyncio
+from quart_cors import cors
 
 # Initialize paths for data storage
 BASE_DIR = Path(__file__).resolve().parent
@@ -22,7 +23,21 @@ app = Quart(__name__,
     static_folder='frontend/static',
     template_folder='frontend/templates'
 )
+app = cors(app, allow_origin="*", allow_headers=["Content-Type"], allow_methods=["GET", "POST", "OPTIONS"])
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'default-secret-key')
+
+# Add after_request to inject CORS headers on every response
+@app.after_request
+async def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+    return response
+
+# Handle CORS preflight (OPTIONS) for all API routes
+@app.route("/api/<path:subpath>", methods=["OPTIONS"])
+async def options_api(subpath):
+    return Response(status=204)
 
 @app.route('/')
 async def index():

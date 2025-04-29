@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
         generateBtn.disabled = true;
         
         // Send data to server
-        fetch('/api/generate-grant', {
+        fetch('http://127.0.0.1:5000/api/generate-grant', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Check response status
             if (data.status === 'processing') {
                 // Redirect to review page
-                window.location.href = '/review';
+                window.location.href = 'http://127.0.0.1:8000/review/';
             } else {
                 // Show error if any
                 statusMessage.textContent = data.message || 'An error occurred. Please try again.';
