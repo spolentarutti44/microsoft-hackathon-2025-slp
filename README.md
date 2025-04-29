@@ -1,7 +1,4 @@
 
-<img width="759" alt="Screenshot 2025-04-29 at 4 27 23 PM" src="https://github.com/user-attachments/assets/e8387d0a-27ce-4f7d-a50c-5881ab736f24" />
-<img width="1245" alt="Screenshot 2025-04-29 at 4 27 55 PM" src="https://github.com/user-attachments/assets/ba42ff1d-2c94-40de-bc7a-6b9be2bfaf47" />
-<img width="1105" alt="Screenshot 2025-04-29 at 4 28 06 PM" src="https://github.com/user-attachments/assets/ea3c3ce3-85ba-4146-ac59-4c61ad22d335" />
 
 
 # Nonprofit Grant Application Builder
@@ -41,6 +38,10 @@ This project consists of two main components:
 - Azure OpenAI  
 - Qdrant (vector DB)  
 - Bootstrap 5 & Quill.js  
+
+<img width="759" alt="Screenshot 2025-04-29 at 4 27 23 PM" src="https://github.com/user-attachments/assets/e8387d0a-27ce-4f7d-a50c-5881ab736f24" />
+<img width="1245" alt="Screenshot 2025-04-29 at 4 27 55 PM" src="https://github.com/user-attachments/assets/ba42ff1d-2c94-40de-bc7a-6b9be2bfaf47" />
+<img width="1105" alt="Screenshot 2025-04-29 at 4 28 06 PM" src="https://github.com/user-attachments/assets/ea3c3ce3-85ba-4146-ac59-4c61ad22d335" />
 
 ## Getting Started
 
