@@ -13,6 +13,9 @@ from .quality_checker import QualityCheckingAgent
 from .scraper import ScraperAgent
 from .web_surfer import WebSurferAgent
 from .file_surfer import FileSurferAgent
+from .duckduckgo_connector import DuckDuckGoConnector
+from .bing_search_connector import BingSearchConnector
+from semantic_kernel.core_plugins.web_search_engine_plugin import WebSearchEnginePlugin
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -42,13 +45,22 @@ class OrchestratorAgent:
         self.kernel = Kernel()
         self.kernel.add_service(self.azure_service, self.deployment_name)
 
-        # Initialize all other agents
-        self.researcher_agent = ResearcherAgent()
+        # Initialize search connectors as tools
+        duck_plugin = WebSearchEnginePlugin(DuckDuckGoConnector())
+        bing_key = os.getenv("BING_SEARCH_API_KEY")
+        if bing_key:
+            bing_plugin = WebSearchEnginePlugin(BingSearchConnector(bing_key))
+            self.search_plugins = [duck_plugin, bing_plugin]
+        else:
+            self.search_plugins = [duck_plugin]
+
+        # Initialize all other agents, passing search tools
+        self.researcher_agent = ResearcherAgent(search_plugins=self.search_plugins)
         self.writer_agent = WriterAgent()
         self.nonprofit_grounding_agent = NonProfitGroundingAgent()
         self.quality_checking_agent = QualityCheckingAgent()
         self.scraper_agent = ScraperAgent()
-        self.web_surfer_agent = WebSurferAgent()
+        self.web_surfer_agent = WebSurferAgent(search_plugins=self.search_plugins)
         self.file_surfer_agent = FileSurferAgent()
 
         # Register each agent as a plugin so the planner can invoke their functions

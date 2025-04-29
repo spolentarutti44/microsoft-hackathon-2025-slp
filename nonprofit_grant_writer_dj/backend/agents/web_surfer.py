@@ -17,42 +17,24 @@ class WebSurferAgent:
     Agent responsible for browsing the web to find relevant information.
     """
     
-    def __init__(self):
+    def __init__(self, search_plugins=None):
         """Initialize the web surfer agent."""
-        self.azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-        self.azure_api_key = os.getenv("AZURE_OPENAI_API_KEY")
-        self.deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
-        
-        if not all([self.azure_endpoint, self.azure_api_key, self.deployment_name]):
+        # Setup Azure service
+        azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+        azure_api_key = os.getenv("AZURE_OPENAI_API_KEY")
+        deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+        if not all([azure_endpoint, azure_api_key, deployment_name]):
             raise ValueError("Azure OpenAI credentials not properly configured in .env file")
-        
-        # Initialize Azure service
         self.azure_service = AzureChatCompletion(
-            deployment_name=self.deployment_name,
-            endpoint=self.azure_endpoint,
-            api_key=self.azure_api_key
+            deployment_name=deployment_name,
+            endpoint=azure_endpoint,
+            api_key=azure_api_key
         )
-        
-        # Initialize DuckDuckGo search plugin (no API key required)
-        from .duckduckgo_connector import DuckDuckGoConnector
-        self.search_plugin = WebSearchEnginePlugin(DuckDuckGoConnector())
 
-        # Initialize Bing search plugin (requires API key)
-        from .bing_search_connector import BingSearchConnector
-        self.bing_search_api_key = os.getenv("BING_SEARCH_API_KEY")
-        if self.bing_search_api_key:
-            self.bing_search_plugin = WebSearchEnginePlugin(BingSearchConnector(self.bing_search_api_key))
-        else:
-            self.bing_search_plugin = None
-            logger.warning("Bing Search API key not found. Bing search functionality will be limited.")
+        # Use injected search plugins or none
+        self.search_plugins = search_plugins or []
 
-        # Combine search plugins (temporarily use only DuckDuckGo)
-        search_plugins = [self.search_plugin]
-        # To re-enable Bing search plugin, uncomment the following lines:
-        # if self.bing_search_plugin:
-        #     search_plugins.append(self.bing_search_plugin)
-
-        # Create the web surfer agent, including both search plugins if available
+        # Create the web surfer agent with injected plugins
         self.agent = ChatCompletionAgent(
             service=self.azure_service,
             name="WebSurferAgent",
@@ -66,7 +48,7 @@ class WebSurferAgent:
             You have access to web search tools to find this information. Always cite your sources
             when providing information. Focus on finding accurate, relevant, and up-to-date information.
             """,
-            plugins=[self.search_plugin]  # use only DuckDuckGo plugin
+            plugins=self.search_plugins
         )
     
     async def search_web(self, query):
@@ -79,7 +61,7 @@ class WebSurferAgent:
         Returns:
             dict: Search results
         """
-        if not self.search_plugin:
+        if not self.search_plugins:
             logger.warning("Search plugin not available. Web surfing capabilities limited.")
             return {"error": "Search capabilities not available"}
         

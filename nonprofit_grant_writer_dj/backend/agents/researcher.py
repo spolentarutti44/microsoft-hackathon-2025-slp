@@ -15,49 +15,26 @@ logger = logging.getLogger(__name__)
 class ResearcherAgent:
     """
     Agent responsible for researching grant opportunities and nonprofit information.
-    Uses Bing search for finding relevant information.
+    Search plugins are injected by the orchestrator.
     """
-    
-    def __init__(self):
-        """Initialize the researcher agent with search capabilities."""
-        self.azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
-        self.azure_api_key = os.getenv("AZURE_OPENAI_API_KEY")
-        self.deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
-        self.bing_search_api_key = os.getenv("BING_SEARCH_API_KEY")
-        logger.info(f"BING_SEARCH_API_KEY loaded: {'Yes' if self.bing_search_api_key else 'No'}")
-        
-        if not all([self.azure_endpoint, self.azure_api_key, self.deployment_name]):
+    def __init__(self, search_plugins=None):
+        """Initialize the researcher agent with injected search plugins and Azure service."""
+        # Azure Chat completion service setup
+        azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+        azure_api_key = os.getenv("AZURE_OPENAI_API_KEY")
+        deployment_name = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
+        if not all([azure_endpoint, azure_api_key, deployment_name]):
             raise ValueError("Azure OpenAI credentials not properly configured in .env file")
-        
-        if not self.bing_search_api_key:
-            logger.warning("Bing Search API key not found. Search functionality will be limited.")
-        
-        # Initialize Azure service
         self.azure_service = AzureChatCompletion(
-            deployment_name=self.deployment_name,
-            endpoint=self.azure_endpoint,
-            api_key=self.azure_api_key
+            deployment_name=deployment_name,
+            endpoint=azure_endpoint,
+            api_key=azure_api_key
         )
-        
-        # Initialize DuckDuckGo search plugin (no API key required)
-        from .duckduckgo_connector import DuckDuckGoConnector
-        self.search_plugin = WebSearchEnginePlugin(DuckDuckGoConnector())
 
-        # Initialize Bing search plugin (requires API key)
-        from .bing_search_connector import BingSearchConnector
-        if self.bing_search_api_key:
-            self.bing_search_plugin = WebSearchEnginePlugin(BingSearchConnector(self.bing_search_api_key))
-        else:
-            self.bing_search_plugin = None
-            logger.warning("Bing Search API key not found. Bing search functionality will be limited.")
+        # Use injected search plugins or none
+        self.search_plugins = search_plugins or []
 
-        # Combine search plugins (temporarily use only DuckDuckGo)
-        search_plugins = [self.search_plugin]
-        # To re-enable Bing search plugin, uncomment the following lines:
-        # if self.bing_search_plugin:
-        #     search_plugins.append(self.bing_search_plugin)
-        
-        # Create the researcher agent, including search plugin if available
+        # Create the researcher agent with injected plugins
         self.agent = ChatCompletionAgent(
             service=self.azure_service,
             name="ResearcherAgent",
@@ -72,7 +49,7 @@ class ResearcherAgent:
             when providing information. Focus on finding accurate, relevant, and up-to-date information
             that will strengthen the grant application.
             """,
-            plugins=[self.search_plugin]  # use only DuckDuckGo plugin
+            plugins=self.search_plugins
         )
     
     async def research_grant(self, grant_url):
@@ -85,8 +62,8 @@ class ResearcherAgent:
         Returns:
             dict: Information about the grant
         """
-        if not self.search_plugin:
-            logger.warning("Search plugin not available. Research capabilities limited.")
+        if not self.search_plugins:
+            logger.warning("Search plugins not available. Research capabilities limited.")
             return {"error": "Search capabilities not available"}
         
         # Example of how to use the agent to perform a search
@@ -106,8 +83,8 @@ class ResearcherAgent:
         Returns:
             dict: Information about the nonprofit
         """
-        if not self.search_plugin:
-            logger.warning("Search plugin not available. Research capabilities limited.")
+        if not self.search_plugins:
+            logger.warning("Search plugins not available. Research capabilities limited.")
             return {"error": "Search capabilities not available"}
         
         context = f"I need to research the nonprofit organization '{nonprofit_name}' with website {nonprofit_website}. Please provide information about this organization including:\n\n1. Mission and vision\n2. Programs and services\n3. Target population served\n4. Impact and achievements\n5. Leadership team\n6. Funding sources\n7. Any recent news or developments\n\nPlease format your response as a structured JSON object."
