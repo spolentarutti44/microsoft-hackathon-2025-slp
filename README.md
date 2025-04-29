@@ -1,4 +1,7 @@
-
+Donate to
+Alternative Humane Society of Whatcom County
+https://www.paypal.com/donate/?hosted_button_id=L9WWJABB44CQ6 
+:)
 
 
 # Nonprofit Grant Application Builder
