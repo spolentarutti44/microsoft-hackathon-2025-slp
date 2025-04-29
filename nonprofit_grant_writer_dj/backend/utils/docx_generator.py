@@ -2,6 +2,7 @@ from docx import Document
 from docx.shared import Inches, Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 import io
+import re
 
 def generate_docx(content):
     """
@@ -40,10 +41,18 @@ def generate_docx(content):
     
     # Add goals and objectives
     doc.add_heading('Goals and Objectives', level=1)
-    goals = content.get('goals_objectives', [])
-    for goal in goals:
-        p = doc.add_paragraph()
-        p.add_run(goal).bold = True
+    # Handle string input and strip HTML tags, splitting on newlines to avoid iterating characters
+    raw_goals = content.get('goals_objectives', [])
+    if isinstance(raw_goals, str):
+        clean_text = re.sub(r'<[^>]+>', '', raw_goals)
+        goals_list = [line.strip() for line in clean_text.split('\n') if line.strip()]
+    else:
+        goals_list = raw_goals
+
+    # Add each goal as a bulleted, bold run
+    for goal in goals_list:
+        p = doc.add_paragraph(goal, style='List Bullet')
+        p.runs[0].bold = True
     
     # Add implementation plan
     doc.add_heading('Implementation Plan', level=1)
