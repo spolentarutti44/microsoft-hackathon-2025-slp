@@ -78,25 +78,25 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set editor contents with content formatting
         // Insert HTML into Quill editor
         const execHtml = formatContent(data.executive_summary || data['Executive Summary'] || '');
-        editors.executiveSummary.clipboard.dangerouslyPasteHTML(execHtml);
+        editors.executiveSummary.root.innerHTML = execHtml;
         const probHtml = formatContent(data.problem_statement || data['Problem Statement'] || '');
-        editors.problemStatement.clipboard.dangerouslyPasteHTML(probHtml);
+        editors.problemStatement.root.innerHTML = probHtml;
         const projHtml = formatContent(data.project_description || data['Project Description'] || '');
-        editors.projectDescription.clipboard.dangerouslyPasteHTML(projHtml);
+        editors.projectDescription.root.innerHTML = projHtml;
         
         // Goals & Objectives
         const goalsData = data.goals_objectives || data['Goals and Objectives'] || '';
         const goalsHtml = formatContent(goalsData);
-        editors.goalsObjectives.clipboard.dangerouslyPasteHTML(goalsHtml);
+        editors.goalsObjectives.root.innerHTML = goalsHtml;
         
         const implHtml = formatContent(data.implementation_plan || data['Implementation Plan'] || '');
-        editors.implementation.clipboard.dangerouslyPasteHTML(implHtml);
+        editors.implementation.root.innerHTML = implHtml;
         const evalHtml = formatContent(data.evaluation || data['Evaluation and Impact'] || '');
-        editors.evaluation.clipboard.dangerouslyPasteHTML(evalHtml);
+        editors.evaluation.root.innerHTML = evalHtml;
         const sustHtml = formatContent(data.sustainability || data['Sustainability Plan'] || '');
-        editors.sustainability.clipboard.dangerouslyPasteHTML(sustHtml);
+        editors.sustainability.root.innerHTML = sustHtml;
         const conclHtml = formatContent(data.conclusion || data['Conclusion'] || '');
-        editors.conclusion.clipboard.dangerouslyPasteHTML(conclHtml);
+        editors.conclusion.root.innerHTML = conclHtml;
         
         // Handle budget - support array or object
         if (data.budget) {
@@ -201,15 +201,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 mission: orgMission.textContent,
                 website: orgWebsite.textContent
             },
-            executive_summary: editors.executiveSummary.clipboard.dangerouslyPasteHTML(),
-            problem_statement: editors.problemStatement.clipboard.dangerouslyPasteHTML(),
-            project_description: editors.projectDescription.clipboard.dangerouslyPasteHTML(),
-            goals_objectives: editors.goalsObjectives.clipboard.dangerouslyPasteHTML(),
-            implementation_plan: editors.implementation.clipboard.dangerouslyPasteHTML(),
-            evaluation: editors.evaluation.clipboard.dangerouslyPasteHTML(),
+            executive_summary: editors.executiveSummary.root.innerHTML,
+            problem_statement: editors.problemStatement.root.innerHTML,
+            project_description: editors.projectDescription.root.innerHTML,
+            goals_objectives: editors.goalsObjectives.root.innerHTML,
+            implementation_plan: editors.implementation.root.innerHTML,
+            evaluation: editors.evaluation.root.innerHTML,
             budget: budgetItems,
-            sustainability: editors.sustainability.clipboard.dangerouslyPasteHTML(),
-            conclusion: editors.conclusion.clipboard.dangerouslyPasteHTML()
+            sustainability: editors.sustainability.root.innerHTML,
+            conclusion: editors.conclusion.root.innerHTML
         };
         
         // Call the API to generate the DOCX

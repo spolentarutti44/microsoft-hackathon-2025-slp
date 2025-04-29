@@ -167,6 +167,8 @@ class OrchestratorAgent:
                 text_to_parse = text_to_parse[1:-1]
             # Remove literal newlines, tabs, and carriage returns
             text_to_parse = text_to_parse.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
+            # Remove non-breaking space characters
+            text_to_parse = text_to_parse.replace('\xa0', ' ')
             # Remove other control characters (except legit whitespace)
             text_to_parse = re.sub(r'[\x00-\x08\x0b-\x0c\x0e-\x1f]', '', text_to_parse)
             # Load planner output JSON, allowing control characters
