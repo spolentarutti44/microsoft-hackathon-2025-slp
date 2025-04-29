@@ -36,8 +36,23 @@ class WebSurferAgent:
         # Initialize DuckDuckGo search plugin (no API key required)
         from .duckduckgo_connector import DuckDuckGoConnector
         self.search_plugin = WebSearchEnginePlugin(DuckDuckGoConnector())
-        
-        # Create the web surfer agent, including search plugin if available
+
+        # Initialize Bing search plugin (requires API key)
+        from .bing_search_connector import BingSearchConnector
+        self.bing_search_api_key = os.getenv("BING_SEARCH_API_KEY")
+        if self.bing_search_api_key:
+            self.bing_search_plugin = WebSearchEnginePlugin(BingSearchConnector(self.bing_search_api_key))
+        else:
+            self.bing_search_plugin = None
+            logger.warning("Bing Search API key not found. Bing search functionality will be limited.")
+
+        # Combine search plugins (temporarily use only DuckDuckGo)
+        search_plugins = [self.search_plugin]
+        # To re-enable Bing search plugin, uncomment the following lines:
+        # if self.bing_search_plugin:
+        #     search_plugins.append(self.bing_search_plugin)
+
+        # Create the web surfer agent, including both search plugins if available
         self.agent = ChatCompletionAgent(
             service=self.azure_service,
             name="WebSurferAgent",
@@ -51,7 +66,7 @@ class WebSurferAgent:
             You have access to web search tools to find this information. Always cite your sources
             when providing information. Focus on finding accurate, relevant, and up-to-date information.
             """,
-            plugins=[self.search_plugin] if self.search_plugin else []
+            plugins=[self.search_plugin]  # use only DuckDuckGo plugin
         )
     
     async def search_web(self, query):

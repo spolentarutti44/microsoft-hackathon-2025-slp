@@ -42,6 +42,20 @@ class ResearcherAgent:
         # Initialize DuckDuckGo search plugin (no API key required)
         from .duckduckgo_connector import DuckDuckGoConnector
         self.search_plugin = WebSearchEnginePlugin(DuckDuckGoConnector())
+
+        # Initialize Bing search plugin (requires API key)
+        from .bing_search_connector import BingSearchConnector
+        if self.bing_search_api_key:
+            self.bing_search_plugin = WebSearchEnginePlugin(BingSearchConnector(self.bing_search_api_key))
+        else:
+            self.bing_search_plugin = None
+            logger.warning("Bing Search API key not found. Bing search functionality will be limited.")
+
+        # Combine search plugins (temporarily use only DuckDuckGo)
+        search_plugins = [self.search_plugin]
+        # To re-enable Bing search plugin, uncomment the following lines:
+        # if self.bing_search_plugin:
+        #     search_plugins.append(self.bing_search_plugin)
         
         # Create the researcher agent, including search plugin if available
         self.agent = ChatCompletionAgent(
@@ -58,7 +72,7 @@ class ResearcherAgent:
             when providing information. Focus on finding accurate, relevant, and up-to-date information
             that will strengthen the grant application.
             """,
-            plugins=[self.search_plugin] if self.search_plugin else []
+            plugins=[self.search_plugin]  # use only DuckDuckGo plugin
         )
     
     async def research_grant(self, grant_url):
